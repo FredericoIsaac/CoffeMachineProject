@@ -1,65 +1,95 @@
-# TODO: 1. Prompt user by asking “What would you like? (espresso/latte/cappuccino):”
-# a. Check the user’s input to decide what to do next.
-# b. The prompt should show every time action has completed, e.g. once the drink is
-# dispensed. The prompt should show again to serve the next customer.
-
-# TODO: 2. Turn off the Coffee Machine by entering “off” to the prompt.
-# a. For maintainers of the coffee machine, they can use “off” as the secret word to turn off
-# the machine. Your code should end execution when this happens.
-
-# TODO: 3. Print report.
-# a. When the user enters “report” to the prompt, a report should be generated that shows
-# the current resource values. e.g.
-# Water: 100ml
-# Milk: 50ml
-# Coffee: 76g
-# Money: $2.5
-
-# TODO: 4. Check resources sufficient?
-# a. When the user chooses a drink, the program should check if there are enough
-# resources to make that drink.
-# b. E.g. if Latte requires 200ml water but there is only 100ml left in the machine. It should
-# not continue to make the drink but print: “Sorry there is not enough water.”
-# c. The same should happen if another resource is depleted, e.g. milk or coffee.
-
-# TODO: 5. Process coins.
-# a. If there are sufficient resources to make the drink selected, then the program should
-# prompt the user to insert coins.
-# b. Remember that quarters = $0.25, dimes = $0.10, nickles = $0.05, pennies = $0.01
-# c. Calculate the monetary value of the coins inserted. E.g. 1 quarter, 2 dimes, 1 nickel, 2
-# pennies = 0.25 + 0.1 x 2 + 0.05 + 0.01 x 2 = $0.52
-
-# TODO: 6. Check transaction successful?
-# a. Check that the user has inserted enough money to purchase the drink they selected.
-# E.g Latte cost $2.50, but they only inserted $0.52 then after counting the coins the
-# program should say “Sorry that's not enough money. Money refunded.”.
-# b. But if the user has inserted enough money, then the cost of the drink gets added to the
-# machine as the profit and this will be reflected the next time “report” is triggered. E.g.
-# Water: 100ml
-# Milk: 50ml
-# Coffee: 76g
-# Money: $2.5
-# c. If the user has inserted too much money, the machine should offer change.
-# E.g. “Here is $2.45 dollars in change.” The change should be rounded to 2 decimal
-# places.
-
-# TODO: 7. Make Coffee.
-# a. If the transaction is successful and there are enough resources to make the drink the
-# user selected, then the ingredients to make the drink should be deducted from the
-# coffee machine resources.
-# E.g. report before purchasing latte:
-# Water: 300ml
-# Milk: 200ml
-# Coffee: 100g
-# Money: $0
-# Report after purchasing latte:
-# Water: 100ml
-# Milk: 50ml
-# Coffee: 76g
-# Money: $2.5
-# b. Once all resources have been deducted, tell the user “Here is your latte. Enjoy!”. If
-# latte was their choice of drink.
+# Imports
+from coffe_data import MENU, resources
 
 
-# TODO: 8. Check Github
+def print_report():
+    """
+    Print existing resources in the machine and current money
+    """
+    print(f"Water: {resources['water']}ml")
+    print(f"Milk: {resources['milk']}ml")
+    print(f"Coffee: {resources['coffee']}g")
+    print(f"Money: ${money_in_machine}")
+
+
+def enough_resources(chosen_drink):
+    """
+    :return: A list with an resource if it was not enough of them, returns empty if enough resources
+    """
+    for key, values in chosen_drink["ingredients"].items():
+        if resources[key] - values < 0:
+            return [key]
+
+    return []
+
+
+def calculate_monetary_value(coin_quarters, coin_dimes, coin_nickles, coin_pennies):
+    """
+    :param coin_quarters: How much quarters coins the user introduce
+    :param coin_dimes: How much dimes coins the user introduce
+    :param coin_nickles: How much nickles coins the user introduce
+    :param coin_pennies: How much pennies coins the user introduce
+    :return: The value of money that the user introduce in the machine
+    """
+    return monetary_coins_value["quarters"] * coin_quarters + monetary_coins_value["dimes"] * coin_dimes + monetary_coins_value["nickles"] * coin_nickles + monetary_coins_value["pennies"] * coin_pennies
+
+
+money_in_machine = 0
+
+monetary_coins_value = {
+    "quarters": 0.25,
+    "dimes": 0.10,
+    "nickles": 0.05,
+    "pennies": 0.01,
+}
+
+while True:
+    menu_choice = input("What would you like? (espresso/latte/cappuccino): ")
+
+    if menu_choice == "off":
+        break
+    elif menu_choice == "report":
+        print_report()
+    else:
+        drink = MENU[menu_choice]
+
+        drink_resource = enough_resources(drink)
+
+        if drink_resource:
+            print(f"Sorry there is not enough {drink_resource[0]}.")
+        else:
+            pass
+
+        print("Please insert coins.")
+        quarters = float(input("how many quarters?: "))
+        dimes = float(input("how many dimes?: "))
+        nickles = float(input("how many nickles?: "))
+        pennies = float(input("how many pennies?: "))
+
+        money_inserted = calculate_monetary_value(quarters, dimes, nickles, pennies)
+        cost_of_drink = drink["cost"]
+
+        if money_inserted < cost_of_drink:
+            print("Sorry that's not enough money. Money refunded.")
+        elif money_inserted >= cost_of_drink:
+            money_in_machine += cost_of_drink
+            change = money_inserted - cost_of_drink
+            print("Here is ${:.2f} dollars in change.".format(change))
+
+        # TODO: 7. Make Coffee.
+        # a. If the transaction is successful and there are enough resources to make the drink the
+        # user selected, then the ingredients to make the drink should be deducted from the
+        # coffee machine resources.
+        # E.g. report before purchasing latte:
+        # Water: 300ml
+        # Milk: 200ml
+        # Coffee: 100g
+        # Money: $0
+        # Report after purchasing latte:
+        # Water: 100ml
+        # Milk: 50ml
+        # Coffee: 76g
+        # Money: $2.5
+        # b. Once all resources have been deducted, tell the user “Here is your latte. Enjoy!”. If
+        # latte was their choice of drink.
 
