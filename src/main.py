@@ -59,3 +59,7 @@
 # Money: $2.5
 # b. Once all resources have been deducted, tell the user “Here is your latte. Enjoy!”. If
 # latte was their choice of drink.
+
+
+# TODO: 8. Check Github
+
